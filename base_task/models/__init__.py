@@ -28,10 +28,12 @@ def init_app(app, **kwargs):
         db=app.config['SQLALCHEMY_DATABASE_URI']
     ))
 
+    db.create_all()
+
 
 from .base import TimestampMixin
 
 # Import all necessary models here
 
-from .authors import api as apiAuthor, author
-from .books import api as apiBook, book
+from .authors import api as apiAuthor, author, Author
+from .books import api as apiBook, book, Book

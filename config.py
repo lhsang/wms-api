@@ -30,7 +30,7 @@ FLASK_APP_SECRET_KEY = os.getenv('SECRET_KEY', 'my_precious_secret_key')
 # MYSQL_USER = os.getenv('MYSQL_USER')
 # MYSQL_PASSWORD = os.getenv('MYSQL_PASSWORD')
 #
-# SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
+# SQLALCHEMY_DATABASE_URI_MYSQL = 'mysql+pymysql://{0}:{1}@{2}:{3}/{4}'.format(
 #     MYSQL_USER, MYSQL_PASSWORD, MYSQL_HOST, 3306, MYSQL_DATABASE
 # )
 

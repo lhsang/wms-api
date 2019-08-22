@@ -11,7 +11,8 @@ _logger = logging.getLogger(__name__)
 def app(request):
     from base_task import app
     from base_task.models import db
-    # print("Start app and init db.......")
+
+    #print("Start app and init db.......")
 
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
 
