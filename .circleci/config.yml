@@ -1,0 +1,110 @@
+version: 2
+jobs:
+  unit-test:
+    docker:
+    - image: python:3.6
+      environment:
+        CC_TEST_REPORTER_ID: db6b6c5576b23446ae53970370b8b791aea2ff93c1190a59ff801b5ed110d9db
+        PGPASS: foobar
+    - image: postgres:9.6-alpine
+      environment:
+        POSTGRES_USER: wms_api
+        POSTGRES_PASSWORD: foobar
+        POSTGRES_DB: wms_api_test
+    - image: redis:4.0-alpine
+    steps:
+    - checkout
+    - restore_cache:
+        key: pip-{{checksum "requirements.txt"}}
+    - run: pip install -r requirements.txt
+    - save_cache:
+        key: pip-{{checksum "requirements.txt"}}
+        paths:
+        - ~/.cache/pip
+    - run:
+        name: Install Code Climate reporter
+        command: |
+          if [[ ! -x cc-test-reporter ]]
+          then
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 -o ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+          fi
+    - run:
+        name: Prepare database
+        command: |
+          cp .env.example .env
+          flask db migrate
+          flask db upgrade heads
+    - run: |
+        ./cc-test-reporter before-build
+        pytest
+        ./cc-test-reporter after-build
+  deploy-develop:
+    docker: 
+    - image: instrumentisto/rsync-ssh
+      environment:
+        PROJECT_PATH: /var/www/api-v2.wms.phongvu.vn
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "9c:17:f4:42:5a:09:23:ec:70:49:ac:59:8c:0c:01:cc"
+      - run: 
+          name: starting deploy to server develop
+          command: |
+            cat ssh.config >> ~/.ssh/config
+            ssh wms-api-dev "cd $PROJECT_PATH && git pull && bash ./scripts/deploy.sh"
+  deploy-test:
+    docker: 
+    - image: instrumentisto/rsync-ssh
+      environment:
+        PROJECT_PATH: /var/www/api-v2.wms.phongvu.vn    
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "9c:17:f4:42:5a:09:23:ec:70:49:ac:59:8c:0c:01:cc"
+      - run: 
+          name: starting deploy to server develop
+          command: |
+            cat ssh.config >> ~/.ssh/config
+            ssh wms-api-test "cd $PROJECT_PATH && git pull && bash ./scripts/deploy.sh"
+  deploy-production:
+    docker: 
+    - image: instrumentisto/rsync-ssh
+      environment:
+        PROJECT_PATH: /var/www/api-v2.wms.phongvu.vn    
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "9c:17:f4:42:5a:09:23:ec:70:49:ac:59:8c:0c:01:cc"
+      - run: 
+          name: starting deploy to server develop
+          command: |
+            cat ssh.config >> ~/.ssh/config
+            ssh wms-api-production "cd $PROJECT_PATH && git pull && bash ./scripts/deploy.sh"                            
+
+workflows:
+  version: 2
+  everything:
+    jobs:
+      - unit-test
+      - deploy-develop:
+          requires:
+            - unit-test
+          filters:
+            branches:
+              only: develop
+      - deploy-test:
+          requires:
+            - unit-test
+          filters:
+            branches:
+              only: test
+      - deploy-production:
+          requires:
+            - unit-test
+          filters:
+            branches:
+              only: master
