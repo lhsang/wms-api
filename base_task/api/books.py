@@ -6,8 +6,23 @@ from datetime import datetime
 @api.route('/')
 class BookAPI(Resource):
     @api.marshal_with(book)
+    @api.doc(params={'title': 'Title of book', 'isbn': 'Book code'})
     def get(self):
-        books = db.session.query(Book).all()
+        parser = api.parser()
+        parser.add_argument('isbn').add_argument('title')
+        args = parser.parse_args()
+
+        query = db.session.query(Book)
+        try:
+            if args['isbn']:
+                query = query.filter(Book.isbn == args['isbn'])
+
+            if args['title']:
+                q = "%{}%".format(args['title'])
+                query = query.filter(Book.title.like(q))
+        except: pass
+
+        books = query.all()
         return books
 
     @api.expect(book, validate=True)
