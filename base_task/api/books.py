@@ -1,11 +1,12 @@
 from ..models import book, apiBook as api, Book, db
 from flask_restplus import Resource
 from datetime import datetime
+import json
+from ..helpers import JSONEncoder
 
 
 @api.route('/')
 class BookAPI(Resource):
-    @api.marshal_with(book)
     @api.doc(params={'title': 'Title of book', 'isbn': 'Book code'})
     def get(self):
         parser = api.parser()
@@ -23,16 +24,16 @@ class BookAPI(Resource):
         except: pass
 
         books = query.all()
-        return books
+        return {'data': json.loads(json.dumps(books, cls=JSONEncoder))}
 
     @api.expect(book, validate=True)
     def post(self):
         data = api.payload
-        print(data)
         try:
-            newAuthor = Book(data)
-            print(newAuthor.as_dict())
-            db.session.add(newAuthor)
+            newBook = Book(data)
+            if not newBook.isValidYear():
+                return {'message': 'Year is invalid'}, 400
+            db.session.add(newBook)
             db.session.commit()
         except:
             api.abort(500, 'Can not create a book')
@@ -41,17 +42,16 @@ class BookAPI(Resource):
 
 @api.route('/<int:id>')
 class BookAPIId(Resource):
-    @api.marshal_with(book)
     @api.doc(responses={
         200: 'Success',
-        400: 'Author not found'
+        400: 'Not found book'
     })
     def get(self, id):
         try:
             _book = db.session.query(Book).filter(Book.id == id).one()
-            return _book
+            return {'data': json.loads(json.dumps(_book, cls=JSONEncoder))}
         except:
-            return api.abort(400, 'Author not found')
+            return api.abort(400, 'Not found book')
 
     def delete(self, id):
         status = db.session.query(Book).filter(Book.id == id).delete()

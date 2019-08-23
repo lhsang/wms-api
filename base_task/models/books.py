@@ -44,5 +44,13 @@ class Book(db.Model):
             except:
                 print("An exception occurred")
 
-    def as_dict(self):
+    def to_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+    def isValidYear(self):
+        if datetime.now().year >= self.year > 0:
+                return True
+        return False
+
+    def isValidISBN(self):
+        return True

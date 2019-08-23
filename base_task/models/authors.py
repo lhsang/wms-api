@@ -1,6 +1,7 @@
 from flask_restplus import Namespace, fields
 from ..models import db
 from datetime import datetime
+import re
 
 api = Namespace('authors', description='Authors related operation')
 
@@ -39,5 +40,23 @@ class Author(db.Model):
             except:
                 print("An exception occurred")
 
-    def as_dict(self):
+    def to_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+    def isValidEmail(self):
+        patternEmail = r"\"?([-a-zA-Z0-9.`?{}]+@\w+\.\w+)\"?"
+        if self.email:
+            if re.match(patternEmail, self.email):
+                return True
+        else:  # if email empty
+            return True
+        return False
+
+    def isValidPhoneNumber(self):
+        patternPhone = "(^0[\d]{9})"
+        if self.phone:
+            if re.match(patternPhone, self.phone):
+                return True
+        else:
+            return True
+        return False
