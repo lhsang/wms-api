@@ -2,14 +2,18 @@ from flask_restplus import Namespace, fields
 from ..models import db
 from datetime import datetime
 
+MAX_LENGTH_ISBN = 64
+MAX_LENGTH_TITLE = 1024
+
+
 api = Namespace('books', description='Books related operation')
 
 book = api.model('Book', {
     'id': fields.Integer(description='Autoincrease'),
-    'title': fields.String(required=True),
+    'title': fields.String(required=True, max_length=MAX_LENGTH_TITLE),
     'year': fields.Integer(required=True),
-    'isbn': fields.String(required=True),
-    'authorID': fields.Integer(required=True),
+    'isbn': fields.String(required=True, max_length=MAX_LENGTH_ISBN),
+    'authorID': fields.Integer(required=True, desciption='Must exist ID'),
     'status': fields.Integer(default=1),
     'created': fields.DateTime(default=datetime.now()),
     'updated': fields.DateTime(default=datetime.now()),
@@ -23,8 +27,8 @@ class Book(db.Model):
     __tablename__ = 'book'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    isbn = db.Column(db.String, nullable=False)
-    title = db.Column(db.String, nullable=False)
+    isbn = db.Column(db.String(MAX_LENGTH_ISBN), nullable=False)
+    title = db.Column(db.String(MAX_LENGTH_TITLE), nullable=False)
     year = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer)
     view = db.Column(db.Integer)
@@ -33,7 +37,7 @@ class Book(db.Model):
     created = db.Column(db.DateTime, default=datetime.now())
     updated = db.Column(db.DateTime, default=datetime.now())
 
-    authorID = db.Column(db.Integer, db.ForeignKey('author.id'))
+    authorID = db.Column(db.Integer, db.ForeignKey('author.id'), nullable=False)
     author = db.relationship('Author')
 
     def __init__(self, obj):
