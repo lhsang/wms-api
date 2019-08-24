@@ -5,17 +5,17 @@ from datetime import datetime
 api = Namespace('books', description='Books related operation')
 
 book = api.model('Book', {
-    'id': fields.Integer,
+    'id': fields.Integer(description='Autoincrease'),
     'title': fields.String(required=True),
     'year': fields.Integer(required=True),
     'isbn': fields.String(required=True),
-    'authorID': fields.Integer,
-    'status': fields.Integer,
-    'created': fields.DateTime,
-    'updated': fields.DateTime,
-    'view': fields.Integer,
-    'vote': fields.Integer,
-    'download': fields.Integer
+    'authorID': fields.Integer(required=True),
+    'status': fields.Integer(default=1),
+    'created': fields.DateTime(default=datetime.now()),
+    'updated': fields.DateTime(default=datetime.now()),
+    'view': fields.Integer(default=0),
+    'vote': fields.Integer(default=0),
+    'download': fields.Integer(default=0)
 })
 
 

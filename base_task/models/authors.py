@@ -6,11 +6,11 @@ import re
 api = Namespace('authors', description='Authors related operation')
 
 author = api.model('Author', {
-    'id': fields.Integer(readOnly=True),
+    'id': fields.Integer(readOnly=True, description='Autoincrease'),
     'first_name': fields.String(required=True),
     'last_name': fields.String(required=True),
-    'email': fields.String,
-    'phone': fields.String,
+    'email': fields.String(description='Example: John.Smith@example.com'),
+    'phone': fields.String(description='Start with 0 and include 10 digits. EX:0987654321'),
     'address': fields.String,
     'status': fields.Integer(default=1),
     'created': fields.DateTime(default=datetime.now()),
@@ -53,7 +53,7 @@ class Author(db.Model):
         return False
 
     def isValidPhoneNumber(self):
-        patternPhone = "(^0[\d]{9})"
+        patternPhone = "(0\d{9}$)"
         if self.phone:
             if re.match(patternPhone, self.phone):
                 return True
