@@ -20,7 +20,8 @@ author = api.model('Author', {
     'address': fields.String(max_length=MAX_LENGTH_ADDRESS),
     'status': fields.Integer(default=1),
     'created': fields.DateTime(default=datetime.now()),
-    'updated': fields.DateTime(default=datetime.now())
+    'updated': fields.DateTime(default=datetime.now()),
+    'book_count': fields.Integer(default=0, readOnly=True)
 })
 
 
@@ -36,6 +37,8 @@ class Author(db.Model):
     status = db.Column(db.Integer, default=1)
     created = db.Column(db.DateTime, default=datetime.now())
     updated = db.Column(db.DateTime, default=datetime.now())
+    book_count = db.Column(db.Integer, default=0)
+
     book = db.relationship('Book')
 
     def __init__(self, obj):

@@ -1,6 +1,8 @@
 from flask_restplus import Namespace, fields
 from ..models import db
 from datetime import datetime
+from sqlalchemy import event
+from sqlalchemy.orm import object_mapper
 
 MAX_LENGTH_ISBN = 64
 MAX_LENGTH_TITLE = 1024
