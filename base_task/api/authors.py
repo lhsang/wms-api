@@ -1,15 +1,15 @@
-from ..models import apiAuthor as api, author, db, Author
-from flask_restplus import Resource, fields
-import json
-from ..helpers import JSONEncoder, resultToResponse
+from ..models import apiAuthor as api, author
+from flask_restplus import Resource
+from ..helpers import resultToResponse, setAssociationToResponse
 from ..services import authorSevice
 
 
 @api.route('/')
 class AuthorAPI(Resource):
     def get(self):
-        result = authorSevice.getAllAuthors()
-        return resultToResponse(result)
+        status, code, data = authorSevice.getAuthorWithHighestVote()
+        res = resultToResponse([status, code, data])
+        return res
 
     @api.expect(author, validate=True)
     def post(self):

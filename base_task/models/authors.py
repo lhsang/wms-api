@@ -15,7 +15,7 @@ author = api.model('Author', {
     'first_name': fields.String(required=True, max_length=MAX_LENGTH_NAME),
     'last_name': fields.String(required=True, max_length=MAX_LENGTH_NAME),
     'email': fields.String(description='Example: John.Smith@example.com', max_length=MAX_LENGTH_EMAIL),
-    'phone': fields.String(description='Start with 0 and include 10 digits. EX:0987654321',
+       'phone': fields.String(description='Start with 0 and include 10 digits. EX:0987654321',
                            max_length=MAX_LENGTH_PHONE_NUMBER),
     'address': fields.String(max_length=MAX_LENGTH_ADDRESS),
     'status': fields.Integer(default=1),
@@ -38,16 +38,16 @@ class Author(db.Model):
     created = db.Column(db.DateTime, default=datetime.now())
     updated = db.Column(db.DateTime, default=datetime.now())
     book_count = db.Column(db.Integer, default=0)
-
-    book = db.relationship('Book')
+    listBooks = []
+    books = db.relationship('Book', backref='author', lazy="joined", uselist=True)
 
     def __init__(self, obj):
         for c in self.__table__.columns:
             try:
                 if c.name != 'id':
                     setattr(self, c.name, obj[c.name])
-            except:
-                print("An exception occurred")
+            except Exception as e:
+                print(str(e))
 
     def to_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

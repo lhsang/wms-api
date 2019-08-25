@@ -14,14 +14,16 @@ class BookService:
 
             books = query.all()
             return True, 200, {'message': 'Data found', 'data': books}
-        except:
+        except Exception as e:
+            print(str(e))
             return False, 500, {'message': 'Data not found'}
 
     def getOneBook(self, id):
         try:
             _book = db.session.query(Book).filter(Book.id == id).one()
             return True, 200, {'message': 'Book found', 'data': _book}
-        except:
+        except Exception as e:
+            print(str(e))
             return False, 400, {'message': 'Book not found', 'data': {}}
 
     def createBook(self, data):
@@ -35,6 +37,7 @@ class BookService:
             db.session.commit()
             return True, 200, {'message': 'Book created successfully', 'data': newBook}
         except Exception as e:
+            print(str(e))
             return False, 400, {'message': 'Can not create book'}
 
     def deleteBook(self, id):
@@ -55,8 +58,8 @@ class BookService:
                 try:
                     if data.get(att):
                         setattr(_book, att, data.get(att))
-                except:
-                    pass
+                except Exception as e:
+                    print(str(e))
             setattr(_book, 'updated', datetime.now())
 
             # valid data
@@ -66,5 +69,6 @@ class BookService:
             db.session.flush()
             db.session.commit()
             return True, 200, {'message': 'Book edited successfully', 'data': _book}
-        except:
+        except Exception as e:
+            print(str(e))
             return False, 400, {'message': 'Can not edit book', 'data': {}}

@@ -1,4 +1,5 @@
-from ..models import db, Author
+from ..models import db, Author, Book
+from sqlalchemy import text
 
 
 class AuthorService:
@@ -10,7 +11,8 @@ class AuthorService:
         try:
             authors = db.session.query(Author).all()
             return True, 200, {'message': 'Data found', 'data': authors}
-        except:
+        except Exception as e:
+            print(str(e))
             return False, 500, {'message': 'Data not found'}
 
     def createAuthor(self, data):
@@ -32,7 +34,8 @@ class AuthorService:
             db.session.add(newAuthor)
             db.session.commit()
             return True, 200, {'message': 'Author created successfully', 'data': newAuthor}
-        except:
+        except Exception as e:
+            print(str(e))
             db.session.rollback()
             return False, 500, {'message': 'Can not create author'}
 
@@ -44,11 +47,24 @@ class AuthorService:
         """
         try:
             db.session.flush()
-            author = db.session.query(Author).filter(Author.id==id).one()
-            setattr(author, 'book_count', getattr(author, 'book_count')+value)
+            author = db.session.query(Author).filter(Author.id == id).one()
+            setattr(author, 'book_count', getattr(author, 'book_count') + value)
 
             db.session.flush()
             db.session.commit()
             print("increased")
-        except:
-            print("Can not increase book count")
+        except Exception as e:
+            print("Can not increase book count\n" + str(e))
+
+    def getAuthorWithHighestVote(self):
+        try:
+            authors = db.session.query(Author.id, Author.first_name, Author.last_name, Author.email, Author.phone,
+                                       Author.book_count, Book.isbn, Book.title, Book.vote).from_statement(text('''
+                                       SELECT * FROM author LEFT JOIN (SELECT DISTINCT ON ( a."authorID"	) 
+                                       a.title, a.isbn, a."authorID", a.vote FROM book a LEFT JOIN book b ON 
+                                       a."authorID" = b."authorID" AND a.vote < b.vote WHERE b."authorID" IS NULL) 
+                                       max_vote ON author.id = max_vote."authorID"''')).all()
+            return True, 200, {'message': 'Data found', 'data': authors}
+        except Exception as e:
+            print(str(e))
+            return False, 500, {'message': 'Data not found'}

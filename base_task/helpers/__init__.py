@@ -6,5 +6,5 @@ _logger = logging.getLogger('api')
 
 from .json_encoder import JSONEncoder, json_encode
 
-from .response_formater import resultToResponse
+from .response_formater import resultToResponse, setAssociationToResponse
 

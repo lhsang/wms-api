@@ -17,6 +17,18 @@ def resultToResponse(result):
         res['message'] = result[2]['message']
         if result[0]:
             res['data'] = json.loads(json.dumps(result[2]['data'], cls=JSONEncoder))
-    except:
-        print('Can not conver result to response')
+    except Exception as e:
+        print(str(e))
     return res
+
+
+def setAssociationToResponse(res, data, att):
+    try:
+        index = 0
+        while index < len(res['data']):
+            res['data'][index][att] = json.loads(json.dumps(getattr(data[index], att), cls=JSONEncoder))
+            index += 1
+    except Exception as e:
+        print(str(e))
+    finally:
+        return res

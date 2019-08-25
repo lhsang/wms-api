@@ -7,7 +7,6 @@ from sqlalchemy.orm import object_mapper
 MAX_LENGTH_ISBN = 64
 MAX_LENGTH_TITLE = 1024
 
-
 api = Namespace('books', description='Books related operation')
 
 book = api.model('Book', {
@@ -29,8 +28,8 @@ class Book(db.Model):
     __tablename__ = 'book'
 
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    isbn = db.Column(db.String(MAX_LENGTH_ISBN), nullable=False)
-    title = db.Column(db.String(MAX_LENGTH_TITLE), nullable=False)
+    isbn = db.Column(db.String(MAX_LENGTH_ISBN), nullable=False, index=True)
+    title = db.Column(db.String(MAX_LENGTH_TITLE), nullable=False, index=True)
     year = db.Column(db.Integer, nullable=False)
     status = db.Column(db.Integer)
     view = db.Column(db.Integer)
@@ -40,14 +39,16 @@ class Book(db.Model):
     updated = db.Column(db.DateTime, default=datetime.now())
 
     authorID = db.Column(db.Integer, db.ForeignKey('author.id'), nullable=False)
-    author = db.relationship('Author')
+
+    # author = db.relationship('Author', backref='books')
 
     def __init__(self, obj):
         for c in self.__table__.columns:
             try:
                 if c.name != 'id':
                     setattr(self, c.name, obj[c.name])
-            except:
+            except Exception as e:
+                print(str(e))
                 print("An exception occurred")
 
     def to_dict(self):
@@ -55,7 +56,7 @@ class Book(db.Model):
 
     def isValidYear(self):
         if datetime.now().year >= self.year > 0:
-                return True
+            return True
         return False
 
     def isValidISBN(self):
