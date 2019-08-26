@@ -1,7 +1,5 @@
 from ..models import book, apiBook as api, Book, db
 from flask_restplus import Resource
-from datetime import datetime
-import json
 from ..helpers import JSONEncoder, resultToResponse
 from ..services import bookService
 

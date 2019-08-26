@@ -41,14 +41,16 @@ class BookService:
             return False, 400, {'message': 'Can not create book'}
 
     def deleteBook(self, id):
-        status = db.session.query(Book).filter(Book.id == id).delete()
+        book = db.session.query(Book).get(id)
+        status = db.session.delete(book)
+        db.session.commit()
         if status == 0:
             return False, 400, {'message': 'Book not found'}
 
         return True, 200, {'message': 'Book deleted successfully', 'data': {}}
 
     def editBook(self, id, data):
-        change_attr = ['title', 'isbn', 'year', 'status', 'view', 'vote', 'download']
+        change_attr = ['title', 'isbn', 'year', 'status', 'view', 'vote', 'download', 'authorID']
 
         try:
             _book = db.session.query(Book).filter(Book.id == id).one()
@@ -66,7 +68,7 @@ class BookService:
             if not _book.isValidYear():
                 return False, 400, {'message': 'Invalid year', 'data': {}}
 
-            db.session.flush()
+            # db.session.flush()
             db.session.commit()
             return True, 200, {'message': 'Book edited successfully', 'data': _book}
         except Exception as e:
