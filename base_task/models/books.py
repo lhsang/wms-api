@@ -1,8 +1,6 @@
 from flask_restplus import Namespace, fields
 from ..models import db
 from datetime import datetime
-from sqlalchemy import event
-from sqlalchemy.orm import object_mapper
 
 MAX_LENGTH_ISBN = 64
 MAX_LENGTH_TITLE = 1024
@@ -49,7 +47,6 @@ class Book(db.Model):
                     setattr(self, c.name, obj[c.name])
             except Exception as e:
                 print(str(e))
-                print("An exception occurred")
 
     def to_dict(self):
         return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}

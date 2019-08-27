@@ -17,7 +17,7 @@ class BookService:
             return True, 200, {'message': 'Data found', 'data': books}
         except Exception as e:
             print(str(e))
-            return False, 500, {'message': 'Data not found'}
+            return False, 400, {'message': 'Data not found'}
 
     def getOneBook(self, id):
         try:
@@ -32,14 +32,13 @@ class BookService:
             newBook = Book(data)
 
             if not newBook.isValidYear():
-                return False, 400, {'message': 'Invalid year'}
+                raise Exception("Invalid year")
 
             db.session.add(newBook)
             db.session.commit()
             return True, 200, {'message': 'Book created successfully', 'data': newBook}
         except Exception as e:
-            print(str(e))
-            return False, 400, {'message': 'Can not create book'}
+            return False, 400, {'message': str(e), 'data': {}}
 
     def deleteBook(self, id):
         book = db.session.query(Book).get(id)
@@ -58,13 +57,10 @@ class BookService:
         try:
             _book = db.session.query(Book).get(id)
 
-            try:
-                if data['authorID'] is not None:
-                    author = db.session.query(Author).filter(Author.id == data['authorID'])
-                    if not author:
-                        return False, 400, {'message': 'AuthorID not exist', 'data': {}}
-            except:
-                pass
+            if 'authorID' in data:
+                author = db.session.query(Author).get(data['authorID'])
+                if not author:
+                    raise Exception(f'AuthorID = {data["authorID"]} not exist')
 
             # copy data
             for att in change_attr:
@@ -78,10 +74,10 @@ class BookService:
 
             # valid data
             if not _book.isValidYear():
-                return False, 400, {'message': 'Invalid year', 'data': {}}
+                raise Exception('Invalid year')
 
             db.session.commit()
             return True, 200, {'message': 'Book edited successfully', 'data': _book}
         except Exception as es:
-            print(str(es))
-            return False, 400, {'message': 'Can not edit book', 'data': {}}
+            db.session.rollback()
+            return False, 400, {'message': str(es), 'data': {}}

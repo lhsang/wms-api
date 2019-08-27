@@ -13,7 +13,7 @@ class AuthorService:
             return True, 200, {'message': 'Data found', 'data': authors}
         except Exception as e:
             print(str(e))
-            return False, 500, {'message': 'Data not found'}
+            return False, 400, {'message': 'Data not found'}
 
     def createAuthor(self, data):
         """
@@ -26,35 +26,17 @@ class AuthorService:
 
             # check email and phone number format
             if not newAuthor.isValidEmail():
-                return False, 400, {'message': 'Invalid email format'}
+                raise Exception('Invalid email')
+
             if not newAuthor.isValidPhoneNumber():
-                return False, 400, {'message': 'Invalid phone number'}
+                raise Exception('Invalid phone number')
 
             # save to db
             db.session.add(newAuthor)
             db.session.commit()
             return True, 200, {'message': 'Author created successfully', 'data': newAuthor}
         except Exception as e:
-            print(str(e))
-            db.session.rollback()
-            return False, 500, {'message': 'Can not create author'}
-
-    def increaseBookCount(self, id, value):
-        """
-        Increase book count when modify
-        :param id: id of author (required)
-        :param value: value to increase, default value=1
-        """
-        try:
-            db.session.flush()
-            author = db.session.query(Author).filter(Author.id == id).one()
-            setattr(author, 'book_count', getattr(author, 'book_count') + value)
-
-            db.session.flush()
-            db.session.commit()
-            print("increased")
-        except Exception as e:
-            print("Can not increase book count\n" + str(e))
+            return False, 400, {'message': str(e), "data": {}}
 
     def getAuthorWithHighestVote(self):
         try:
@@ -72,5 +54,4 @@ class AuthorService:
                                     })
             return True, 200, {'message': 'Data found', 'data': listAuthors}
         except Exception as e:
-            print(str(e))
-            return False, 500, {'message': 'Data not found'}
+            return False, 400, {'message': 'Data not found'}

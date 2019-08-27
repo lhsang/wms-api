@@ -84,6 +84,7 @@ def test_delete_book(id, status_code):
 
 @pytest.mark.put_book
 @pytest.mark.parametrize(('payload', 'status_code'), [
+    ('{}', 200),
     ('{"title": "Toi tai", "year": 2011, "isbn": "9828778787878","authorID": 1}', 200),
     ('{"year": 2011}', 200),
     ('{"isbn": "9828778787878"}', 200),
@@ -94,7 +95,7 @@ def test_delete_book(id, status_code):
     ('{"title":,}', 400),
 ])
 def test_put_book(payload, status_code):
-    id=4
-    res = requests.put(url + str(id), payload)
+    bookID = 7
+    res = requests.put(url + str(bookID), payload, headers= headers)
     assert res.status_code == status_code
 
