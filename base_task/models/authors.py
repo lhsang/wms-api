@@ -38,7 +38,7 @@ class Author(db.Model):
     created = db.Column(db.DateTime, default=datetime.now())
     updated = db.Column(db.DateTime, default=datetime.now())
     book_count = db.Column(db.Integer, default=0)
-    listBooks = []
+
     books = db.relationship('Book', backref='author', lazy="joined", uselist=True)
 
     def __init__(self, obj):

@@ -9,10 +9,10 @@ class AuthorAPI(Resource):
     def get(self):
         status, code, data = authorSevice.getAuthorWithHighestVote()
         res = resultToResponse([status, code, data])
-        return res
+        return res, code
 
     @api.expect(author, validate=True)
     def post(self):
-        result = authorSevice.createAuthor(api.payload)
+        status, code, data = authorSevice.createAuthor(api.payload)
 
-        return resultToResponse(result)
+        return resultToResponse([status, code, data]), code

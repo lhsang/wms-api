@@ -1,4 +1,4 @@
-from ..models import Book, db
+from ..models import Book, db, Author
 from datetime import datetime
 
 
@@ -11,6 +11,7 @@ class BookService:
 
             if args['title']:
                 q = "%{}%".format(args['title'])
+                query = query.filter(Book.title.like(q))
 
             books = query.all()
             return True, 200, {'message': 'Data found', 'data': books}
@@ -42,18 +43,28 @@ class BookService:
 
     def deleteBook(self, id):
         book = db.session.query(Book).get(id)
-        status = db.session.delete(book)
-        db.session.commit()
-        if status == 0:
-            return False, 400, {'message': 'Book not found'}
+        if book:
+            status = db.session.delete(book)
+            db.session.commit()
+            if status == 0:
+                return False, 400, {'message': 'Book not found'}
 
-        return True, 200, {'message': 'Book deleted successfully', 'data': {}}
+            return True, 200, {'message': 'Book deleted successfully', 'data': {}}
+        return False, 400, {'message': 'Book not found'}
 
     def editBook(self, id, data):
         change_attr = ['title', 'isbn', 'year', 'status', 'view', 'vote', 'download', 'authorID']
 
         try:
-            _book = db.session.query(Book).filter(Book.id == id).one()
+            _book = db.session.query(Book).get(id)
+
+            try:
+                if data['authorID'] is not None:
+                    author = db.session.query(Author).filter(Author.id == data['authorID'])
+                    if not author:
+                        return False, 400, {'message': 'AuthorID not exist', 'data': {}}
+            except:
+                pass
 
             # copy data
             for att in change_attr:
@@ -62,15 +73,15 @@ class BookService:
                         setattr(_book, att, data.get(att))
                 except Exception as e:
                     print(str(e))
+
             setattr(_book, 'updated', datetime.now())
 
             # valid data
             if not _book.isValidYear():
                 return False, 400, {'message': 'Invalid year', 'data': {}}
 
-            # db.session.flush()
             db.session.commit()
             return True, 200, {'message': 'Book edited successfully', 'data': _book}
-        except Exception as e:
-            print(str(e))
+        except Exception as es:
+            print(str(es))
             return False, 400, {'message': 'Can not edit book', 'data': {}}

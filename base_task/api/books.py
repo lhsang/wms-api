@@ -11,15 +11,15 @@ class BookAPI(Resource):
         parser = api.parser()
         parser.add_argument('isbn').add_argument('title')
         args = parser.parse_args()
-        result = bookService.getAllBooks(args)
+        status, code, data = bookService.getAllBooks(args)
 
-        return resultToResponse(result)
+        return resultToResponse([ status, code, data]), code
 
     @api.expect(book, validate=True)
     def post(self):
         data = api.payload
-        result = bookService.createBook(data)
-        return resultToResponse(result)
+        status, code, data = bookService.createBook(data)
+        return resultToResponse([ status, code, data]), code
 
 
 @api.route('/<int:id>')
@@ -29,11 +29,14 @@ class BookAPIId(Resource):
         400: 'Not found book'
     })
     def get(self, id):
-        return resultToResponse(bookService.getOneBook(id))
+        status, code, data = bookService.getOneBook(id)
+        return resultToResponse([status, code, data]), code
 
     def delete(self, id):
-        return resultToResponse(bookService.deleteBook(id))
+        status, code, data = bookService.deleteBook(id)
+        return resultToResponse([status, code, data]), code
 
     @api.expect(book)
     def put(self, id):
-        return resultToResponse(bookService.editBook(id, api.payload))
+        status, code, data = bookService.editBook(id, api.payload)
+        return resultToResponse([status, code, data]), code

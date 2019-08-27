@@ -3,6 +3,7 @@ import datetime
 import logging
 import pytest
 
+import requests
 
 _logger = logging.getLogger(__name__)
 
@@ -11,4 +12,3 @@ _logger = logging.getLogger(__name__)
 def app_class(request, app):
     if request.cls is not None:
         request.cls.app = app
-

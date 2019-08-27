@@ -64,7 +64,13 @@ class AuthorService:
                                        a.title, a.isbn, a."authorID", a.vote FROM book a LEFT JOIN book b ON 
                                        a."authorID" = b."authorID" AND a.vote < b.vote WHERE b."authorID" IS NULL) 
                                        max_vote ON author.id = max_vote."authorID"''')).all()
-            return True, 200, {'message': 'Data found', 'data': authors}
+            listAuthors = []
+            for x in authors:
+                listAuthors.append({"id": x.id, "first_name": x.first_name, "last_name": x.last_name, "email": x.email,
+                                    "phone": x.phone, "book_count": x.book_count, "isbn": x.isbn, "title": x.title,
+                                    "vote": x.vote
+                                    })
+            return True, 200, {'message': 'Data found', 'data': listAuthors}
         except Exception as e:
             print(str(e))
             return False, 500, {'message': 'Data not found'}
